@@ -12,6 +12,10 @@ module CmAdmin
 
     DESC
 
+    def add_initializer
+      template 'initializer.erb', 'config/initializers/cm_admin.rb'
+    end
+
     def add_required_gems
       gem 'slim'
       gem 'simple_form'
