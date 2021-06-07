@@ -12,6 +12,7 @@ module CmAdmin
     initializer 'RailsAdmin precompile hook', group: :all do |app|
       app.config.assets.precompile += %w(
         cm_admin/cm_admin.css
+        cm_admin/application.js
       )
     end
 

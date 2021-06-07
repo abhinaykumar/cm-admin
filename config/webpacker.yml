@@ -19,6 +19,7 @@ default: &default
   extract_css: false
 
   static_assets_extensions:
+    - .coffee
     - .jpg
     - .jpeg
     - .png

@@ -1,3 +1,4 @@
+= byebug
 .admin-table-index
   .table-top  
     p.table-top__total-count = "#{@ar_object.pagy.count} #{@model.ar_model.table_name} found"
@@ -32,7 +33,7 @@
                   i.fa.fa-bars.bolder
                 span
                   i.fa.fa-angle-down
-              .popup-card.export-popup.hidden
+              .popup-card.table-export-popup.hidden
                 .popup-option
                   span
                     i.fa.fa-file-pdf-o
