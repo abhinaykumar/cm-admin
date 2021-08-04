@@ -86,6 +86,17 @@ module CmAdmin
       @ar_object = filter_by(params, filter_params=filter_params(params))
     end
 
+    def new(params)
+      @current_action = CmAdmin::Models::Action.find_by(self, name: 'new')
+      @ar_object = @ar_model.new
+    end
+
+    def edit(params)
+      @current_action = CmAdmin::Models::Action.find_by(self, name: 'edit')
+      @ar_object = @ar_model.find(params[:id])
+    end
+    
+
     def filter_by(params, filter_params={}, sort_params={})
       filtered_result = OpenStruct.new
       sort_column = "users.created_at"
@@ -134,14 +145,6 @@ module CmAdmin
         )
       end
       records
-    end
-
-    def new(params)
-      @ar_object = @ar_model.new
-    end
-
-    def edit(params)
-      @ar_object = @ar_model.find(params[:id])
     end
 
     def update(params)
