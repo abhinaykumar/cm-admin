@@ -1,3 +1,26 @@
+var currentRequest = null
+$(document).ready(function(e) {
+  if ($('.index-page__table-container').length > 0) {
+    return currentRequest = $.ajax(window.location.href, {
+      type: 'GET',
+      data: {
+        tableColumn: getTableColumns(),
+      },
+      beforeSend: function() {
+        if (currentRequest !== null) {
+          currentRequest.abort();
+        }
+      },
+      success: function(data) {
+        $('.index-page__table-container').html(data);
+      },
+      error: function(jqxhr, textStatus, errorThrown) {
+        console.log(errorThrown, textStatus);
+      }
+    });
+  }
+}
+
 window.getTableColumns = function() {
   var tableColumn;
   var pathname = window.location.pathname.split('cm_admin/').slice(-1)[0]
