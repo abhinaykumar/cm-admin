@@ -20,7 +20,8 @@ var getFilteredData = function(filterType, filterValue, filterColumn=null) {
   // to display on the table.
   var queryString = {
     filters: filterParams,
-    page: 1
+    page: 1,
+    tableColumn: window.getTableColumns()
   };
 
   // Generate the queryString by concatenating the filterParams and
@@ -52,6 +53,9 @@ var getFilteredData = function(filterType, filterValue, filterColumn=null) {
       }
     },
     success: function(data) {
+      if (queryString['tableColumn'] != undefined) {
+        delete(queryString['tableColumn'])
+      }
       var queryParam = jQuery.param(queryString)
       window.history.pushState("", "", url + '?' + queryParam);
       $('.index-page__table-container').html(data);
@@ -330,4 +334,3 @@ $(document).on('click', '[data-behaviour="selected-chip"]', function(e) {
     $(selectElement).parent().siblings(':last').removeClass('active')
   }
 })
-
