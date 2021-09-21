@@ -7,10 +7,13 @@ $(document).ready(function(e) {
   flatpickr("[data-behaviour='filter'][data-filter-type='date']", {
     mode: 'range'
   })
-  Sortable.create($('.columns-list')[0],{
-    handle: '.dragger',
-    animation: 150
-  });
+  if ($('.columns-list').length > 0) {
+    Sortable.create($('.columns-list')[0],{
+      handle: '.dragger',
+      animation: 150
+    });
+  }
+
 });
 
 $(document).on("keypress keyup blur", "[data-behaviour='decimal-only'], [data-behaviour='filter'][data-filter-type='range']", function (e) {
