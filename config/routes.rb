@@ -2,6 +2,7 @@ CmAdmin::Engine.routes.draw do
   controller 'static' do
     get '/', action: 'dashboard'
     get '/access-denied', action: 'error_403'
+    get '/hashed_columns', action: 'hashed_columns'
   end
 
   controller 'exports' do
