@@ -13,7 +13,6 @@ $(document).ready(function(e) {
       animation: 150
     });
   }
-
 });
 
 $(document).on("keypress keyup blur", "[data-behaviour='decimal-only'], [data-behaviour='filter'][data-filter-type='range']", function (e) {
