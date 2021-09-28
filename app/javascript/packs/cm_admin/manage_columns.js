@@ -19,7 +19,7 @@ $(document).ready(function(e) {
       }
     });
   }
-}
+});
 
 window.getTableColumns = function() {
   var tableColumn;
