@@ -28,21 +28,21 @@ module CmAdmin
 
       #formatting value for different data types
       def self.format_data_type(column, value)
-        case column.column_type
+        case column.dig(:field_type)
         when :string
-          if column.format.present?
-            column.format = [column.format] if column.format.is_a? String
-            column.format.each do |formatter|
+          if column.dig(:format).present?
+            column_format = [column.dig(:format)] if column.dig(:format).is_a? String
+            column_format.each do |formatter|
               value = value.send(formatter)
             end
           end
         when :datetime
-          format_value = column.format.present? ? column.format.to_s : '%d/%m/%Y'
+          format_value = column.dig(:format).present? ? column.dig(:format).to_s : '%d/%m/%Y'
           value = value.strftime(format_value)
         when :enum
           value = value.titleize
         when :decimal
-          round_to = column.round.present? ? column.round.to_i : 2
+          round_to = column.dig(:round).present? ? column.dig(:round).to_i : 2
           value = value.round(round_to)
         when :custom
 

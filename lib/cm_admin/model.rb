@@ -321,10 +321,11 @@ module CmAdmin
                 @ar_object.send(('build_' + table_name.to_s).to_sym) if action_name == "new"
               end
             end
+            @table_column = JSON.parse(params['tableColumn']) if params['tableColumn']
             respond_to do |format|
               if %w(show index new edit).include?(action_name)
                 if request.xhr? && action_name.eql?('index')
-                  format.html { render partial: '/cm_admin/main/table' }
+                  format.html { render partial: '/cm_admin/main/table', locals: {table_columns: @table_column}}
                 else
                   format.html { render '/cm_admin/main/'+action_name }
                 end
