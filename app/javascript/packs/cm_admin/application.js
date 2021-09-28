@@ -8,6 +8,7 @@ require("bootstrap")
 require('flatpickr')
 require('./scaffolds.js')
 require('./filters.js')
+require('./manage_columns.js')
 
 import jQuery from 'jquery'
 window.$ = jQuery
@@ -16,6 +17,3 @@ window.jQuery = jQuery
 require("@nathanvda/cocoon")
 import "@fortawesome/fontawesome-free/css/all"
 import "daterangepicker"
-
-
-
