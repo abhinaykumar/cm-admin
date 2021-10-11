@@ -13,6 +13,7 @@ $(document).ready(function(e) {
       },
       success: function(data) {
         $('.index-page__table-container').html(data);
+        initalizeSortable();
       },
       error: function(jqxhr, textStatus, errorThrown) {
         console.log(errorThrown, textStatus);
@@ -40,4 +41,13 @@ window.getTableColumns = function() {
     });
   }
   return tableColumn
+}
+
+window.initalizeSortable = function() {
+  if ($('.columns-list').length > 0) {
+    Sortable.create($('.columns-list')[0],{
+      handle: '.dragger',
+      animation: 150
+    });
+  }
 }

@@ -7,12 +7,7 @@ $(document).ready(function(e) {
   flatpickr("[data-behaviour='filter'][data-filter-type='date']", {
     mode: 'range'
   })
-  if ($('.columns-list').length > 0) {
-    Sortable.create($('.columns-list')[0],{
-      handle: '.dragger',
-      animation: 150
-    });
-  }
+  initalizeSortable();
 });
 
 $(document).on("keypress keyup blur", "[data-behaviour='decimal-only'], [data-behaviour='filter'][data-filter-type='range']", function (e) {
