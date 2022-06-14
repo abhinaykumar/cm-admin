@@ -32,12 +32,16 @@ module CmAdmin
         # columns = resource.class.columns.select { |i| available_fields.map(&:field_name).include?(i.name.to_sym) }
         table_name = resource.model_name.collection
         # columns.reject! { |i| REJECTABLE.include?(i.name) }
-        url = CmAdmin::Engine.mount_path + "/#{table_name}/#{resource.id}"
+        # url = CmAdmin::Engine.mount_path + "/#{table_name}/#{resource.id}"
+        url = request.url.gsub('/new', '').gsub('/edit', '')
         set_form_for_fields(resource, available_fields, url, method)
       end
 
       def set_form_for_fields(resource, available_fields_hash, url, method)
         form_for(resource, url: url, method: method, html: { class: "cm_#{resource.class.name.downcase}_form" } ) do |f|
+          if @model.nested_model_name
+            concat f.text_field @model.nested_model_name.to_s + '_id', class: "normal-input", hidden: true, value: params[:aar_id]
+          end
           available_fields_hash.each do |key, fields_array|
             if key == :fields
               fields_array.each do |field|

@@ -7,7 +7,7 @@ module CmAdmin
         CmAdmin.config.cm_admin_models.map { |model|
           if model.is_visible_on_sidebar
             path = CmAdmin::Engine.mount_path + '/' + model.name.underscore.pluralize
-            if policy([:cm_admin, model.name.classify.constantize]).index?
+            if policy([:cm_admin, model.ar_model]).index?
               if navigation_type == "sidebar"
                 content_tag(:a, href: path) do
                   content_tag(:div, class: 'menu-item') do

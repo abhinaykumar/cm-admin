@@ -1,7 +1,14 @@
+- if @nested_model
+  - nested_actions = @nested_model.available_actions.map(&:name)
+- else
+  - nested_actions = []
 .admin-table-index
   .table-top
     p.table-top__total-count = "#{@associated_ar_object.pagy.count} #{@action.child_records.to_s.gsub('_', ' ')} found"
     .table-top__column-action
+      - if nested_actions.include?('new')
+        a href="#{CmAdmin::Engine.mount_path}/#{@nested_model.name.tableize}/new"
+          button.secondary-btn.column-btn Add
       / button.secondary-btn.column-btn data-target="#columnActionModal" data-toggle="modal" type="button"
       /   span
       /     i.fa.fa-columns.bolder
@@ -17,7 +24,7 @@
         /   span
         /     input.cm-checkbox type="checkbox"
         - @model.available_fields[@action.name.to_sym].each do |column|
-          th = column.header
+            th = column.header
     tbody.cm-table__body
       - @associated_ar_object.data.each do |ar_object|
         tr.body-row
@@ -25,9 +32,12 @@
           / td.check-box-space
           /   span
           /     input.cm-checkbox type="checkbox"
-          - @model.available_fields[@action.name.to_sym].each do |column|
+          - @model.available_fields[@action.name.to_sym].each_with_index do |column, index|
             td class="text-ellipsis"
-              span class="#{column.cm_css_class}" = show_field_value(ar_object, column)
+              - if index == 0 && nested_actions.include?('show')
+                a href="#{CmAdmin::Engine.mount_path}/#{@nested_model.name.tableize}/#{ar_object.id}" = show_field_value(ar_object, column)
+              - else
+                span class="#{column.cm_css_class}" = show_field_value(ar_object, column)
           - associated_model_actions = @associated_model && @associated_model.available_actions.select{|act| act if act.route_type == 'member'}
           - if associated_model_actions.present?
             td.row-action-cell

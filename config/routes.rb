@@ -11,8 +11,14 @@ CmAdmin::Engine.routes.draw do
   # Defining action routes for each model
   CmAdmin.config.cm_admin_models.each do |model|
     model.available_actions.sort_by {|act| act.name}.each do |act|
-      scope model.name.tableize do
-        send(act.verb, act.path.present? ? act.path : act.name, to: "#{model.name.underscore}##{act.name}", as: "#{model.name.underscore}_#{act.name}")
+      if model.nested_model_name
+        scope model.name.tableize do
+          send(act.verb, act.path.present? ? act.path : act.name, to: "#{model.name.underscore}##{act.name}", as: "#{model.nested_model_name.to_s.underscore}_#{model.name.underscore}_#{act.name}")
+        end
+      else
+        scope model.name.tableize do
+          send(act.verb, act.path.present? ? act.path : act.name, to: "#{model.name.underscore}##{act.name}", as: "#{model.name.underscore}_#{act.name}")
+        end
       end
     end
   end

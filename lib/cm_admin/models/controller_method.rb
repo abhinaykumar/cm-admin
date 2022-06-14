@@ -5,7 +5,7 @@ module CmAdmin
 
       def show(params)
         @current_action = CmAdmin::Models::Action.find_by(self, name: 'show')
-        scoped_model = "CmAdmin::#{self.name}Policy::Scope".constantize.new(Current.user, self.name.constantize).resolve
+        scoped_model = "CmAdmin::#{self.name}Policy::Scope".constantize.new(Current.user, @ar_model).resolve
         @ar_object = scoped_model.find(params[:id])
       end
 
@@ -13,6 +13,7 @@ module CmAdmin
         @current_action = CmAdmin::Models::Action.find_by(self, name: 'index')
         # Based on the params the filter and pagination object to be set
         @ar_object = filter_by(params, nil, filter_params(params))
+        
       end
 
       def new(params)
@@ -31,7 +32,6 @@ module CmAdmin
         @ar_object
       end
 
-
       def create(params)
         @ar_object = @ar_model.name.classify.constantize.new(resource_params(params))
       end
@@ -41,8 +41,7 @@ module CmAdmin
         sort_column = "created_at"
         sort_direction = %w[asc desc].include?(sort_params[:sort_direction]) ? sort_params[:sort_direction] : "asc"
         sort_params = {sort_column: sort_column, sort_direction: sort_direction}
-        
-        records = "CmAdmin::#{self.name}Policy::Scope".constantize.new(Current.user, self.name.constantize).resolve if records.nil?
+        records = "CmAdmin::#{self.name}Policy::Scope".constantize.new(Current.user, @ar_model).resolve if records.nil?
         records = records.order("#{current_action.sort_column} #{current_action.sort_direction}")
 
         final_data = CmAdmin::Models::Filter.filtered_data(filter_params, records, @filters)
@@ -79,7 +78,7 @@ module CmAdmin
         permittable_fields += nested_fields
         @ar_model.columns.map { |col| permittable_fields << col.name.split('_cents') if col.name.include?('_cents') }
 
-        params.require(self.name.underscore.to_sym).permit(*permittable_fields)
+        params.require(@ar_model.name.underscore.to_sym).permit(*permittable_fields)
       end
     end
   end

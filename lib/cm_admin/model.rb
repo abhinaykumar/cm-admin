@@ -23,7 +23,7 @@ module CmAdmin
     include Models::DslMethod
     include Models::ControllerMethod
     attr_accessor :available_actions, :actions_set, :available_fields, :permitted_fields,
-      :current_action, :params, :filters, :available_tabs, :icon_name
+      :current_action, :params, :filters, :available_tabs, :icon_name, :nested_model_name
     attr_reader :name, :ar_model, :is_visible_on_sidebar
 
     def initialize(entity, &block)
@@ -33,6 +33,7 @@ module CmAdmin
       @icon_name = 'fa fa-th-large'
       @available_actions ||= []
       @current_action = nil
+      @nested_model_name = nil
       @available_tabs ||= []
       @available_fields ||= {index: [], show: [], edit: {fields: []}, new: {fields: []}}
       @params = nil
@@ -50,6 +51,8 @@ module CmAdmin
       end
     end
 
+    # nested_model - To figure if there is any cm_model present to go nested pages
+    # associated_model - Curret model(current tab) that is associated with the current show page
     def custom_controller_action(action_name, params)
       current_action = CmAdmin::Models::Action.find_by(self, name: action_name.to_s)
       if current_action
@@ -57,13 +60,14 @@ module CmAdmin
         @ar_object = @ar_model.name.classify.constantize.find(params[:id])
         if @current_action.child_records
           child_records = @ar_object.send(@current_action.child_records)
+          @nested_model = CmAdmin::Model.find_by(name: @ar_model.name + @current_action.child_records.to_s.classify)
           @associated_model = CmAdmin::Model.find_by(name: @ar_model.reflect_on_association(@current_action.child_records).klass.name)
           if child_records.is_a? ActiveRecord::Relation
             @associated_ar_object = filter_by(params, child_records)
           else
             @associated_ar_object = child_records
           end
-          return @ar_object, @associated_model, @associated_ar_object
+          return @ar_object, @associated_model, @associated_ar_object, @nested_model
         end
         return @ar_object
       end
@@ -85,6 +89,11 @@ module CmAdmin
       @is_visible_on_sidebar = visible_option
     end
 
+    def nested_inside(model_name)
+      @nested_model_name = model_name
+      @name = @nested_model_name.to_s.classify + self.name
+    end
+
     def set_icon(name)
       @icon_name = name
     end
@@ -104,23 +113,23 @@ module CmAdmin
     # Controller defined for each model
     # If model is User, controller will be UsersController
     def define_controller
+      model_name = self.name
       klass = Class.new(CmAdmin::ApplicationController) do
         include Pundit::Authorization
         rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
         $available_actions.each do |action|
           define_method action.name.to_sym do
-
             # controller_name & action_name from ActionController
             @model = CmAdmin::Model.find_by(name: controller_name.classify)
             @model.params = params
             @action = CmAdmin::Models::Action.find_by(@model, name: action_name)
             @model.current_action = @action
             @ar_object = @model.try(@action.parent || action_name, params)
-            @ar_object, @associated_model, @associated_ar_object = @model.custom_controller_action(action_name, params.permit!) if !@ar_object.present? && params[:id].present?
-            authorize controller_name.classify.constantize, policy_class: "CmAdmin::#{controller_name.classify}Policy".constantize if defined? "CmAdmin::#{controller_name.classify}Policy".constantize
-            aar_model = request.url.split('/')[-2].classify.constantize  if params[:aar_id]
-            @associated_ar_object = aar_model.find(params[:aar_id]) if params[:aar_id]
+            @ar_object, @associated_model, @associated_ar_object, @nested_model = @model.custom_controller_action(action_name, params.permit!) if !@ar_object.present? && params[:id].present?
+            authorize @model.ar_model, policy_class: "CmAdmin::#{controller_name.classify}Policy".constantize if defined? "CmAdmin::#{controller_name.classify}Policy".constantize
+            # aar_model = request.path.gsub('/cm_admin/', '').split('/').first.classify.constantize  if params[:aar_id]
+            @associated_ar_object = @model.nested_model_name.to_s.classify.constantize.find(params[:aar_id]) if params[:aar_id]
             nested_tables = @model.available_fields[:new].except(:fields).keys
             nested_tables += @model.available_fields[:edit].except(:fields).keys
             @reflections = @model.ar_model.reflect_on_all_associations
